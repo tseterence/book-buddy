@@ -1,0 +1,32 @@
+.book {
+    width: 80%;
+    border: 1px solid black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.actions button {
+    width: 190px;
+    height: 40px;
+}
+
+
+
+
+
+header {
+    margin-bottom: 50px;
+}
