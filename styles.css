@@ -1,5 +1,14 @@
+main {
+    max-width: 1060px;
+    padding: 20px;
+}
+
+.warning {
+    color: var(--warning);
+}
+
 .book {
-    width: 80%;
+    /* width: 80%; */
     border: 1px solid black;
     display: flex;
     justify-content: space-between;
@@ -8,25 +17,65 @@
     margin-bottom: 5px;
 }
 
+.read {
+    border-left: 8px solid green;
+}
+.not-read {
+    border-left: 8px solid red;
+}
+
 .details {
     display: flex;
     flex-direction: column;
 }
 
-.actions {
+/* .actions {
     display: flex;
     flex-direction: column;
-}
+} */
 
 .actions button {
-    width: 190px;
+    width: 180px;
     height: 40px;
+    display: flex;
+    justify-content: flex-start;
+
+    margin-bottom: 3px;
+}
+.text {
+    margin: 0 auto;
+}
+
+.delete {
+    margin-top: 5px;
 }
 
 
 
 
 
-header {
+form {
     margin-bottom: 50px;
+}
+
+
+
+
+
+.btn-icon-split {
+    padding: 0;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: stretch;
+    justify-content: center;
+}
+.btn-icon-split .icon {
+    background: rgba(0,0,0,.15);
+    display: inline-block;
+    padding: .375rem .75rem;
+}
+.btn-icon-split .text {
+    display: inline-block;
+    padding: .375rem .75rem;
+    /* color: white; */
 }

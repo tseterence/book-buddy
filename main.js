@@ -10,51 +10,25 @@ class Book {
         this.pages = pages
         this.read = read
     }
-
-	// showInfo() {
-	// 	return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'read': 'not read yet'}`;
-	// };
 }
 
-// function addBookToLibrary(book) {
-//     // do stuff here
-//     myLibrary.push(book)
-
-//     const bookCard = document.createElement('div')
-//     bookCard.setAttribute('class', 'book');
-
-//     bookCard.innerHTML = `
-//         <div class="details">
-//             <img src="https://via.placeholder.com/102x140">
-//             <div>
-//                 <h1>${book.title}</h1>
-//                 <h2>by ${book.author}</h2>
-//                 <h3>${book.pages} pages</h3>
-//             </div>
-//         </div>
-//         <div class="actions">
-//             <button type="button" class="btn btn-success"><i class="bibi-bookmark-check"id="read-icon"></i><span id="read-text">&nbsp;Read</span></button>
-//             <br>
-//             <br>
-//             <button type="button" class="delete btn btn-danger"><i class="bi bi-trash"></i>&nbspDelete<button>
-//         </div>
-//     `;
-
-//     document.getElementById('book-list').appendChild(bookCard)
-// }
+function addBookToLibrary(book) {
+    // do stuff here
+    myLibrary.push(book)
+}
 
 function renderLibrary() {
-    myLibrary.forEach(book => {
-        createBookCard(book);
+    myLibrary.forEach((book, index) => {
+        createBookCard(book, index);
     })
 }
 
 function createBookCard(book, index) {
     const bookCard = document.createElement('div');
 
-
-    // bookCard.setAttribute('data-id', index);
+    bookCard.setAttribute('data-id', index);
     bookCard.setAttribute('class', 'book');
+    bookCard.classList.add(book.read ? 'read' : 'not-read');
 
     const bookCardDetails = document.createElement('div');
     bookCardDetails.setAttribute('class', 'details');
@@ -75,11 +49,40 @@ function createBookCard(book, index) {
     bookCardActions.setAttribute('class', 'actions');
 
     const bookCardReadBtn = document.createElement('button');
-    bookCardReadBtn.textContent = 'Read';
-    bookCardReadBtn.setAttribute('class', 'btn btn-success');
+    bookCardReadBtn.textContent = book.read ? 'Read' : 'Not Read';
+    bookCardReadBtn.setAttribute('class', book.read ? 'btn btn-success' : 'btn btn-warning');
+    bookCardReadBtn.addEventListener('click', (e) => {
+        if (book.read) {
+            book.read = false;
+            bookCard.classList.remove('read');
+            bookCard.classList.add('not-read');
+            bookCardReadBtn.setAttribute('class', 'btn btn-secondary');
+            bookCardReadBtn.textContent = 'Want to Read';
+        } else {
+            book.read = true;
+            bookCard.classList.remove('not-read');
+            bookCard.classList.add('read');
+            bookCardReadBtn.setAttribute('class', 'btn btn-success');
+            bookCardReadBtn.textContent = 'Read';
+        }
+        console.log(myLibrary)
+        // console.log(e.target.parentNode.parentNode)
+        // if read
+            // change to not read
+                // update object within library array
+                // button text -> 'not read' & icon
+                // button color -> grey
+                // parent parent -> class 'not read'
+        // else (not read)
+            // change to read
+                // update object within library array
+                // button text -> 'read' & icon
+                // button color -> green
+                // parent parent -> class 'read'
+    })
 
     const bookCardDeleteBtn = document.createElement('button');
-    bookCardDeleteBtn.setAttribute('class', 'btn btn-danger');
+    bookCardDeleteBtn.setAttribute('class', 'delete btn btn-danger');
     const deleteIcon = document.createElement('i');
     deleteIcon.setAttribute('class', 'bi bi-trash');
     bookCardDeleteBtn.appendChild(deleteIcon)
@@ -125,7 +128,7 @@ renderLibrary();
 
 // Form Submit (add new book)
 const addBook = document.getElementById('new-book-submit')
-addBook.addEventListener('submit', (e) => {
+addBook.addEventListener('click', (e) => {
     // get form data
     const title = document.getElementById('title-input').value
     const author = document.getElementById('author-input').value
@@ -135,7 +138,7 @@ addBook.addEventListener('submit', (e) => {
     if (title && author && pages && Number(pages) >= 0) {
         e.preventDefault();
 
-        const book = new Book(title, author, pages, read)
+        const book = new Book(title, author, Number(pages), read)
         addBookToLibrary(book)
 
         clearForm();
@@ -148,6 +151,10 @@ function clearForm() {
     document.getElementById('author-input').value = '';
     document.getElementById('pages-input').value = '';
     document.getElementById('read-input').checked = false;
+}
+
+// sort function (title & author A-Z and Z-A, page count up and down, read or not read first, date added = default)
+function sortLibrary() {
 }
 
 
