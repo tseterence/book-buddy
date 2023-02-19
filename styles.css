@@ -21,7 +21,7 @@ main {
     border-left: 8px solid green;
 }
 .not-read {
-    border-left: 8px solid red;
+    border-left: 8px solid gold;
 }
 
 .details {
@@ -62,7 +62,7 @@ form {
 
 
 
-.btn-icon-split {
+/* .btn-icon-split {
     padding: 0;
     overflow: hidden;
     display: inline-flex;
@@ -77,5 +77,4 @@ form {
 .btn-icon-split .text {
     display: inline-block;
     padding: .375rem .75rem;
-    /* color: white; */
-}
+} */

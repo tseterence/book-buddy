@@ -1,6 +1,6 @@
 let myLibrary = [
-	{ title: 'The Hobbit', author: 'J.R.R. Tolkien', pages: 295, read: false },
-	{ title: 'Harry Potter', author: 'J.K. Rowling', pages: 230, read: true },
+	{ title: 'The Hobbit', author: 'J. R. R. Tolkien', pages: 304, read: false },
+	{ title: `Harry Potter and the Sorcerer's Stone`, author: 'J.K. Rowling', pages: 336, read: true },
 ];
 
 class Book {
@@ -27,15 +27,18 @@ function createBookCard(book, index) {
     const bookCard = document.createElement('div');
 
     bookCard.setAttribute('data-id', index);
-    bookCard.setAttribute('class', 'book');
-    bookCard.classList.add(book.read ? 'read' : 'not-read');
+    bookCard.setAttribute('class', 'card shadow h-100 mb-2');
+    bookCard.classList.add(book.read ? 'border-left-success' : 'border-left-warning');
+
+    const bookCardBody = document.createElement('div');
+    bookCardBody.setAttribute('class', 'card-body row no-gutters align-items-center');
 
     const bookCardDetails = document.createElement('div');
-    bookCardDetails.setAttribute('class', 'details');
+    bookCardDetails.setAttribute('class', 'col-sm-12 col-md-9 mr-2');
 
-    const bookCardTitle = document.createElement('h1');
+    const bookCardTitle = document.createElement('h2');
     bookCardTitle.textContent = book.title;
-    const bookCardAuthor = document.createElement('h2');
+    const bookCardAuthor = document.createElement('h3');
     bookCardAuthor.textContent = 'by ' + book.author;
     const bookCardPages = document.createElement('h3');
     bookCardPages.textContent = book.pages + ' pages';
@@ -43,27 +46,45 @@ function createBookCard(book, index) {
     bookCardDetails.appendChild(bookCardTitle);
     bookCardDetails.appendChild(bookCardAuthor);
     bookCardDetails.appendChild(bookCardPages);
-
+    
 
     const bookCardActions = document.createElement('div');
-    bookCardActions.setAttribute('class', 'actions');
+    bookCardActions.setAttribute('class', 'col');
 
     const bookCardReadBtn = document.createElement('button');
-    bookCardReadBtn.textContent = book.read ? 'Read' : 'Not Read';
-    bookCardReadBtn.setAttribute('class', book.read ? 'btn btn-success' : 'btn btn-warning');
+    bookCardReadBtn.setAttribute('class', 'btn btn-icon-split w-100 mb-1')
+    bookCardReadBtn.classList.add(book.read ? 'btn-success' : 'btn-warning');
+
+    const readIconSpan = document.createElement('span');
+    readIconSpan.setAttribute('class', 'icon text-white-50')
+    const readIcon = document.createElement('i');
+    readIcon.setAttribute('class', book.read ? 'bi bi-check-lg' : 'bi bi-bookmark-fill');
+
+    const readIconSpanText = document.createElement('span');
+    readIconSpanText.setAttribute('class', 'text');
+    readIconSpanText.textContent = book.read ? 'Read' : 'Want to Read'
+    
+    readIconSpan.appendChild(readIcon)
+    bookCardReadBtn.appendChild(readIconSpan)
+    bookCardReadBtn.appendChild(readIconSpanText)
+
     bookCardReadBtn.addEventListener('click', (e) => {
         if (book.read) {
             book.read = false;
-            bookCard.classList.remove('read');
-            bookCard.classList.add('not-read');
-            bookCardReadBtn.setAttribute('class', 'btn btn-secondary');
-            bookCardReadBtn.textContent = 'Want to Read';
+            bookCardReadBtn.classList.remove('btn-success');
+            bookCardReadBtn.classList.add('btn-warning');
+            readIcon.setAttribute('class', 'bi bi-bookmark-fill')
+            readIconSpanText.textContent = 'Want to Read';
+            bookCard.classList.remove('border-left-success');
+            bookCard.classList.add('border-left-warning');
         } else {
             book.read = true;
-            bookCard.classList.remove('not-read');
-            bookCard.classList.add('read');
-            bookCardReadBtn.setAttribute('class', 'btn btn-success');
-            bookCardReadBtn.textContent = 'Read';
+            bookCardReadBtn.classList.remove('class', 'btn-warning');
+            bookCardReadBtn.classList.add('class', 'btn-success');
+            readIcon.setAttribute('class', 'bi bi-check-lg')
+            readIconSpanText.textContent = 'Read';
+            bookCard.classList.remove('border-left-warning');
+            bookCard.classList.add('border-left-success');
         }
         console.log(myLibrary)
         // console.log(e.target.parentNode.parentNode)
@@ -82,12 +103,16 @@ function createBookCard(book, index) {
     })
 
     const bookCardDeleteBtn = document.createElement('button');
-    bookCardDeleteBtn.setAttribute('class', 'delete btn btn-danger');
+    bookCardDeleteBtn.setAttribute('class', 'btn btn-danger btn-icon-split w-100');
+    const deleteIconSpan = document.createElement('span');
+    deleteIconSpan.setAttribute('class', 'icon text-white-50')
     const deleteIcon = document.createElement('i');
-    deleteIcon.setAttribute('class', 'bi bi-trash');
-    bookCardDeleteBtn.appendChild(deleteIcon)
+    deleteIcon.setAttribute('class', 'bi bi-trash3-fill');
+    deleteIconSpan.appendChild(deleteIcon)
+    bookCardDeleteBtn.appendChild(deleteIconSpan)
 
     const bookCardDeleteText = document.createElement('span');
+    bookCardDeleteText.setAttribute('class', 'text')
     bookCardDeleteText.textContent = ' Delete';
     bookCardDeleteBtn.appendChild(bookCardDeleteText)
 
@@ -95,8 +120,9 @@ function createBookCard(book, index) {
     bookCardActions.appendChild(bookCardReadBtn);
     bookCardActions.appendChild(bookCardDeleteBtn);
 
-    bookCard.appendChild(bookCardDetails);
-    bookCard.appendChild(bookCardActions);
+    bookCardBody.appendChild(bookCardDetails);
+    bookCardBody.appendChild(bookCardActions);
+    bookCard.appendChild(bookCardBody)
 
     document.getElementById('book-list').appendChild(bookCard)
 }
@@ -142,6 +168,8 @@ addBook.addEventListener('click', (e) => {
         addBookToLibrary(book)
 
         clearForm();
+
+        createBookCard({title, author, pages, read}, myLibrary.length - 1);
         console.log(myLibrary);
     }
 })
