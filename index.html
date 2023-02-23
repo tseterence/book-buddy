@@ -19,7 +19,7 @@
 
     <main>
         <h1>Add New Book</h1>
-        <form id="new-book-form">
+        <!-- <form id="new-book-form">
             <input type="text" id="title-input" placeholder="Book Title" autocomplete="off" required>
             <br>
             <input type="text" id="author-input" placeholder="Author" autocomplete="off" required>
@@ -30,18 +30,37 @@
             <label for="read-input">Have you read it?</label>
             <br>
             <input type="submit" id="new-book-submit" value="Add Book">
+        </form> -->
+
+        <form id="new-book-form">
+            <div class="mb-2">
+                <label for="title-input" class="form-label">Book Title</label>
+                <input type="text" class="form-control" id="title-input" placeholder="Title" autocomplete="off" required>
+            </div>
+            <div class="mb-2">
+                <label for="author-input" class="form-label">Book Author</label>
+                <input type="text" class="form-control" id="author-input" placeholder="Author" autocomplete="off" required>
+            </div>
+            <div class="mb-2">
+                <label for="pages-input" class="form-label">Number of Pages</label>
+                <input type="number" class="form-control" id="pages-input" min="0" placeholder="Pages" autocomplete="off" required>
+            </div>
+            <div class="mb-2 form-check">
+                <input type="checkbox" class="form-check-input" id="read-input">
+                <label class="form-check-label" for="read-input">I have read this book</label>
+            </div>
+            <button type="submit" class="btn btn-primary" id="new-book-submit">Add Book</button>
         </form>
 
         <section id="book-list">
-            <div class="book read">
-                <!-- left trim (green = read, red = not read) -->
+            <!-- <div class="book read">
                 <div class="details">
-                    <!-- <img src="https://via.placeholder.com/102x140"> -->
-                    <!-- <div> -->
+                    <img src="https://via.placeholder.com/102x140">
+                    <div>
                         <h1>Title</h1>
                         <h2>by Author</h2>
                         <h3>Page count</h3>
-                    <!-- </div> -->
+                    </div>
                 </div>
                 <div class="actions">
                     <button type="button" class="btn btn-success btn-icon-split">
@@ -56,12 +75,12 @@
                         </span>
                         <span class="text text-white">Want to Read</span>
                     </button>
-                    <!-- <button type="button" class="btn btn-primary btn-icon-split">
+                    <button type="button" class="btn btn-primary btn-icon-split">
                         <span class="icon text-white-50">
                             <i class="bi bi-pencil"></i>
                         </span>
                         <span class="text">Edit</span>
-                    </button> -->
+                    </button>
                     <button type="button" class="btn btn-danger btn-icon-split">
                         <span class="icon text-white-50">
                             <i class="bi bi-trash3-fill"></i>
@@ -72,7 +91,7 @@
 
                     <br>
                     <button type="button" class="btn btn-success" id="read"><i class="bi bi-bookmark-check" id="read-icon"></i><span id="read-text">&nbsp;Read</span></button>
-                    <!-- <button type="button" class="edit btn btn-primary"><i class="bi bi-pencil"></i>&nbsp;Edit</button> -->
+                    <button type="button" class="edit btn btn-primary"><i class="bi bi-pencil"></i>&nbsp;Edit</button>
                     <button type="button" class="delete btn btn-danger"><i class="bi bi-trash"></i>&nbsp;Delete</button>
 
 
@@ -83,13 +102,13 @@
                         <span class="text">Split Button Warning</span>
                     </a>
                 </div>
-            </div>
+            </div> -->
 
             
             <!-- Card Example -->
-            <div class="card border-left-warning shadow h-100 mb-2">
+            <!-- <div class="card border-left-warning shadow h-100 mb-2">
                 <div class="card-body row no-gutters align-items-center">
-                    <!-- <div class="row no-gutters align-items-center"> -->
+                    <div class="row no-gutters align-items-center">
                         <div class="col-sm-12 col-md-9 mr-2">
                             <h2>Improving the Relevance of Search Results: Search-term Disambiguation andOntological Filtering</h2>
                             <h3>by DENGYA ZHU</h3>
@@ -115,10 +134,10 @@
                                 <span class="text">Delete</span>
                             </button>
                         </div>
-                    <!-- </div> -->
+                    </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Button Test Section -->
         <!-- <div>

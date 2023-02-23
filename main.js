@@ -1,8 +1,3 @@
-let myLibrary = [
-	{ title: 'The Hobbit', author: 'J. R. R. Tolkien', pages: 304, read: false },
-	{ title: `Harry Potter and the Sorcerer's Stone`, author: 'J.K. Rowling', pages: 336, read: true },
-];
-
 class Book {
     constructor(title, author, pages, read) {
         this.title = title
@@ -12,21 +7,37 @@ class Book {
     }
 }
 
+// on page load
+    // if local storage doesn't have item, initialize as empty array
+    // else set library array as JSON.parse('local storage item')
+// let myLibrary = [
+// 	{ title: 'The Hobbit', author: 'J. R. R. Tolkien', pages: 304, read: false },
+//     new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', 336, true),
+//     new Book(`Harry Potter and the Chamber of Secrets`, 'J. K. Rowling', 357, true),
+// ];
+
 function addBookToLibrary(book) {
     // do stuff here
     myLibrary.push(book)
 }
 
+function deleteBookFromLibrary(book) {
+    // update local storage
+    // delete book card from dom
+}
+
 function renderLibrary() {
     myLibrary.forEach((book, index) => {
         createBookCard(book, index);
+        // console.log(book.isbn)
+        // console.log(`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg?default=false`)
     })
 }
 
 function createBookCard(book, index) {
     const bookCard = document.createElement('div');
 
-    bookCard.setAttribute('data-id', index);
+    // bookCard.setAttribute('data-id', index);
     bookCard.setAttribute('class', 'card shadow h-100 mb-2');
     bookCard.classList.add(book.read ? 'border-left-success' : 'border-left-warning');
 
@@ -86,24 +97,17 @@ function createBookCard(book, index) {
             bookCard.classList.remove('border-left-warning');
             bookCard.classList.add('border-left-success');
         }
-        console.log(myLibrary)
-        // console.log(e.target.parentNode.parentNode)
-        // if read
-            // change to not read
-                // update object within library array
-                // button text -> 'not read' & icon
-                // button color -> grey
-                // parent parent -> class 'not read'
-        // else (not read)
-            // change to read
-                // update object within library array
-                // button text -> 'read' & icon
-                // button color -> green
-                // parent parent -> class 'read'
+        // update localstorage
+        const myLibrary = JSON.parse(localStorage.getItem('library'));
+        myLibrary[index].read = !myLibrary[index].read
+        localStorage.setItem('library', JSON.stringify(myLibrary))
+
+        // console.log(myLibrary)
     })
 
     const bookCardDeleteBtn = document.createElement('button');
     bookCardDeleteBtn.setAttribute('class', 'btn btn-danger btn-icon-split w-100');
+
     const deleteIconSpan = document.createElement('span');
     deleteIconSpan.setAttribute('class', 'icon text-white-50')
     const deleteIcon = document.createElement('i');
@@ -116,6 +120,23 @@ function createBookCard(book, index) {
     bookCardDeleteText.textContent = ' Delete';
     bookCardDeleteBtn.appendChild(bookCardDeleteText)
 
+    bookCardDeleteBtn.addEventListener('click', (e) => {
+        // confirm delete?
+
+        // delete from DOM
+        e.target.closest('.card').remove();
+
+        // delete from library array
+        myLibrary.splice(index, 1);
+
+        // update local storage
+        localStorage.setItem('library', JSON.stringify(myLibrary))
+
+        // test console log
+        // console.log(e.target.parentElement.parentElement.parentElement.parentElement)
+        // console.log(e.target.closest('.card'))
+        // console.log(myLibrary)
+    })
 
     bookCardActions.appendChild(bookCardReadBtn);
     bookCardActions.appendChild(bookCardDeleteBtn);
@@ -127,25 +148,29 @@ function createBookCard(book, index) {
     document.getElementById('book-list').appendChild(bookCard)
 }
 
+// render library on page load
+let myLibrary;
 
-
-// const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false)
-// addBookToLibrary(theHobbit)
-
-// const harryPotter = new Book('Harry Potter', 'J.K. Rowling', 230, true)
-// addBookToLibrary(harryPotter)
-
-// console.log(myLibrary);
+if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
+    myLibrary = [
+        { title: 'The Hobbit', author: 'J. R. R. Tolkien', pages: 304, read: false },
+        new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', 336, true),
+        new Book(`Harry Potter and the Chamber of Secrets`, 'J. K. Rowling', 357, true),
+    ];
+} else {
+    myLibrary = JSON.parse(localStorage.getItem('library'));
+}
+localStorage.setItem('library', JSON.stringify(myLibrary))
 renderLibrary();
 
 
 // function getFetch() {
-//     const url = 'https://api2.isbndb.com/book/9781934759486'
+//     const url = 'https://openlibrary.org/search.json?title=the+lord+of+the+rings&author=tolkein'
 
 //     fetch(url)
 //         .then(res => res.json())
 //         .then(data => {
-//             console.log(data)
+//             console.log(data.docs[0])
 //         })
 //         .catch(err => console.log(`error ${err}`));
 // }
@@ -164,13 +189,19 @@ addBook.addEventListener('click', (e) => {
     if (title && author && pages && Number(pages) >= 0) {
         e.preventDefault();
 
+        // create book object
         const book = new Book(title, author, Number(pages), read)
+        // add book to library array
         addBookToLibrary(book)
-
+        // add book to localstorage
+        localStorage.setItem('library', JSON.stringify(myLibrary))
+        // clear form
         clearForm();
-
+        // add book card to DOM
         createBookCard({title, author, pages, read}, myLibrary.length - 1);
-        console.log(myLibrary);
+        
+        // test console log
+        // console.log(myLibrary);
     }
 })
 
@@ -181,31 +212,6 @@ function clearForm() {
     document.getElementById('read-input').checked = false;
 }
 
-// sort function (title & author A-Z and Z-A, page count up and down, read or not read first, date added = default)
+// sort function (title or author A-Z and Z-A, read or not read first, oldest to newest (date added) = default / newest to oldest)
 function sortLibrary() {
-}
-
-
-// Change 'Read Status' button onclick
-const readBtn = document.getElementById('read')
-const readIcon = document.getElementById('read-icon')
-const readText = document.getElementById('read-text')
-
-readBtn.addEventListener('click', switchReadStatus)
-function switchReadStatus() {
-    if (readBtn.classList.contains('btn-success')) {
-        readBtn.classList.remove('btn-success')
-        readBtn.classList.add('btn-secondary')
-
-        readIcon.classList.remove('bi-bookmark-check')
-        readIcon.classList.add('bi-bookmark-x')
-        readText.textContent = ' Not Read'
-    } else {
-        readBtn.classList.remove('btn-secondary')
-        readBtn.classList.add('btn-success')
-
-        readIcon.classList.remove('bi-bookmark-x')
-        readIcon.classList.add('bi-bookmark-check')
-        readText.textContent = ' Read'
-    }
 }
