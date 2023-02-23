@@ -1,5 +1,6 @@
 class Book {
-    constructor(title, author, pages, read) {
+    constructor(isbn, title, author, pages, read) {
+        this.isbn = isbn
         this.title = title
         this.author = author
         this.pages = pages
@@ -42,25 +43,38 @@ function createBookCard(book, index) {
     bookCard.classList.add(book.read ? 'border-left-success' : 'border-left-warning');
 
     const bookCardBody = document.createElement('div');
-    bookCardBody.setAttribute('class', 'card-body row no-gutters align-items-center');
+    bookCardBody.setAttribute('class', 'card-body row no-gutters justify-content-center align-items-center');
 
     const bookCardDetails = document.createElement('div');
-    bookCardDetails.setAttribute('class', 'col-sm-12 col-md-9 mr-2');
+    bookCardDetails.setAttribute('class', 'row col');
 
-    const bookCardTitle = document.createElement('h2');
+    const bookCardImgDiv = document.createElement('div');
+    bookCardImgDiv.setAttribute('class', 'col-md-auto text-center py-2')
+    const bookCardImg = document.createElement('img');
+    bookCardImg.src = 'https://via.placeholder.com/175x240';
+    bookCardImgDiv.appendChild(bookCardImg)
+    bookCardDetails.appendChild(bookCardImgDiv);
+
+    const bookCardTextDiv = document.createElement('div');
+    bookCardTextDiv.setAttribute('class', 'col py-2')
+
+    const bookCardTitle = document.createElement('h3');
     bookCardTitle.textContent = book.title;
-    const bookCardAuthor = document.createElement('h3');
+    const bookCardAuthor = document.createElement('h4');
     bookCardAuthor.textContent = 'by ' + book.author;
-    const bookCardPages = document.createElement('h3');
+    const bookCardPages = document.createElement('h5');
     bookCardPages.textContent = book.pages + ' pages';
 
-    bookCardDetails.appendChild(bookCardTitle);
-    bookCardDetails.appendChild(bookCardAuthor);
-    bookCardDetails.appendChild(bookCardPages);
+    bookCardTextDiv.appendChild(bookCardTitle);
+    bookCardTextDiv.appendChild(bookCardAuthor);
+    bookCardTextDiv.appendChild(bookCardPages);
+
+    bookCardDetails.appendChild(bookCardTextDiv);
+
     
 
     const bookCardActions = document.createElement('div');
-    bookCardActions.setAttribute('class', 'col');
+    bookCardActions.setAttribute('class', 'col-md-3 py-2');
 
     const bookCardReadBtn = document.createElement('button');
     bookCardReadBtn.setAttribute('class', 'btn btn-icon-split w-100 mb-1')
@@ -124,13 +138,14 @@ function createBookCard(book, index) {
         // confirm delete?
 
         // delete from DOM
-        e.target.closest('.card').remove();
+        // e.target.closest('.card').remove();
 
         // delete from library array
-        myLibrary.splice(index, 1);
+        console.log(e.target.parentElement.parentElement)
+        // myLibrary.splice(index, 1);
 
         // update local storage
-        localStorage.setItem('library', JSON.stringify(myLibrary))
+        // localStorage.setItem('library', JSON.stringify(myLibrary))
 
         // test console log
         // console.log(e.target.parentElement.parentElement.parentElement.parentElement)
@@ -153,7 +168,7 @@ let myLibrary;
 
 if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
     myLibrary = [
-        { title: 'The Hobbit', author: 'J. R. R. Tolkien', pages: 304, read: false },
+        new Book(`The Hobbit`, 'J. R. R. Tolkien', 304, false, 9780044403371),
         new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', 336, true),
         new Book(`Harry Potter and the Chamber of Secrets`, 'J. K. Rowling', 357, true),
     ];
@@ -165,12 +180,25 @@ renderLibrary();
 
 
 // function getFetch() {
-//     const url = 'https://openlibrary.org/search.json?title=the+lord+of+the+rings&author=tolkein'
+//     // const url = 'https://openlibrary.org/search.json?title=the+lord+of+the+rings&author=tolkein'
+//     // let isbn = 9780590353427
+//     let isbn = 9780544003415
+//     const url = `https://www.googleapis.com/books/v1/volumes?q=${isbn}`
+//     // const url = `https://www.googleapis.com/books/v1/volumes?q=the+lord+of+the+rings`
+
 
 //     fetch(url)
 //         .then(res => res.json())
 //         .then(data => {
-//             console.log(data.docs[0])
+//             console.log(data.items.length)
+//             console.log(data.items[0].volumeInfo)
+//             console.log(data.items[0].volumeInfo.title)
+//             console.log(data.items[0].volumeInfo.authors[0])
+//             console.log(data.items[0].volumeInfo.pageCount)
+//             console.log(data.items[0].volumeInfo.imageLinks.thumbnail)
+//             // console.log(data.items[1].volumeInfo.imageLinks.thumbnail)
+
+//             // console.log(data.industryIdentifiers)
 //         })
 //         .catch(err => console.log(`error ${err}`));
 // }
