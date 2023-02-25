@@ -51,7 +51,9 @@ main {
 }
 
 
-
+img {
+    width: 175px;
+}
 
 
 form {
@@ -60,7 +62,8 @@ form {
 
 @media (min-width: 768px) {
     img {
-        width: 102px;
+        width: 100px;
+        /* height: ; */
     }
 }
 

@@ -1,12 +1,45 @@
 class Book {
-    constructor(isbn, title, author, pages, read) {
-        this.isbn = isbn
+    constructor(title, author, isbn, pages, read, cover) {
         this.title = title
         this.author = author
+        this.isbn = isbn
         this.pages = pages
         this.read = read
+        this.cover = cover
     }
 }
+
+// class Library {
+//     constructor() {
+//         this.books = []
+//     }
+//     addBookToLibrary(book) {
+//         // if (!this.books.some(b => b.title === book.title)) {
+//         //     this.books.push(book)
+//         // }
+//         this.books.push(book);
+//     }
+//     removeBookFromLibrary(book) {
+//         this.books = this.books.filter(b => b.title !== book.title)
+//     }
+// }
+
+// class UI {
+//     addBook() {
+
+//     }
+//     removeBook() {
+
+//     }
+//     updateBook() {
+
+//     }
+// }
+
+// let myLibrary = new Library();
+// let testbook = new Book('B1', 'Auth1', 100, true)
+// myLibrary.addBookToLibrary(testbook)
+// console.log(myLibrary)
 
 // on page load
     // if local storage doesn't have item, initialize as empty array
@@ -18,13 +51,42 @@ class Book {
 // ];
 
 function addBookToLibrary(book) {
-    // do stuff here
-    myLibrary.push(book)
+    // check if book already exists in library. only proceed if not
+
+    // update local storage
+    const library = JSON.parse(localStorage.getItem('library'));    
+    library.push(book)
+    localStorage.setItem('library', JSON.stringify(library));
+
+    // create book card and add to dom
+    // createBookCard({title, author, pages, read}, myLibrary.length - 1);
 }
 
 function deleteBookFromLibrary(book) {
     // update local storage
+    let library = JSON.parse(localStorage.getItem('library'));
+    // library = library.filter(b => b.title !== book.title)
+    for (let i = 0; i < library.length; i++) {
+        if (library[i].title === book.title) {
+            library.splice(i, 1)
+            break
+        }
+    }
+    localStorage.setItem('library', JSON.stringify(library));
+
     // delete book card from dom
+}
+
+function changeBookStatus(book) {
+    // update local storage
+    const library = JSON.parse(localStorage.getItem('library'));
+    for (let i = 0; i < library.length; i++) {
+        if (library[i].title === book.title) {
+            library[i].read = !library[i].read
+            break
+        }
+    }
+    localStorage.setItem('library', JSON.stringify(library));
 }
 
 function renderLibrary() {
@@ -51,7 +113,7 @@ function createBookCard(book, index) {
     const bookCardImgDiv = document.createElement('div');
     bookCardImgDiv.setAttribute('class', 'col-md-auto text-center py-2')
     const bookCardImg = document.createElement('img');
-    bookCardImg.src = 'https://via.placeholder.com/175x240';
+    bookCardImg.src = book.cover;
     bookCardImgDiv.appendChild(bookCardImg)
     bookCardDetails.appendChild(bookCardImgDiv);
 
@@ -74,7 +136,7 @@ function createBookCard(book, index) {
     
 
     const bookCardActions = document.createElement('div');
-    bookCardActions.setAttribute('class', 'col-md-3 py-2');
+    bookCardActions.setAttribute('class', 'col-md-3 py-2 ml-md-2');
 
     const bookCardReadBtn = document.createElement('button');
     bookCardReadBtn.setAttribute('class', 'btn btn-icon-split w-100 mb-1')
@@ -111,12 +173,11 @@ function createBookCard(book, index) {
             bookCard.classList.remove('border-left-warning');
             bookCard.classList.add('border-left-success');
         }
-        // update localstorage
-        const myLibrary = JSON.parse(localStorage.getItem('library'));
-        myLibrary[index].read = !myLibrary[index].read
-        localStorage.setItem('library', JSON.stringify(myLibrary))
-
-        // console.log(myLibrary)
+        // update local storage
+        changeBookStatus(book);
+        // const library = JSON.parse(localStorage.getItem('library'));
+        // library[index].read = !library[index].read
+        // localStorage.setItem('library', JSON.stringify(library));
     })
 
     const bookCardDeleteBtn = document.createElement('button');
@@ -135,22 +196,13 @@ function createBookCard(book, index) {
     bookCardDeleteBtn.appendChild(bookCardDeleteText)
 
     bookCardDeleteBtn.addEventListener('click', (e) => {
-        // confirm delete?
+        // user confirm delete?
 
         // delete from DOM
-        // e.target.closest('.card').remove();
+        e.target.closest('.card').remove();
 
-        // delete from library array
-        console.log(e.target.parentElement.parentElement)
-        // myLibrary.splice(index, 1);
-
-        // update local storage
-        // localStorage.setItem('library', JSON.stringify(myLibrary))
-
-        // test console log
-        // console.log(e.target.parentElement.parentElement.parentElement.parentElement)
-        // console.log(e.target.closest('.card'))
-        // console.log(myLibrary)
+        // delete book from local storage
+        deleteBookFromLibrary(book);
     })
 
     bookCardActions.appendChild(bookCardReadBtn);
@@ -172,61 +224,101 @@ if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem(
         new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', 336, true),
         new Book(`Harry Potter and the Chamber of Secrets`, 'J. K. Rowling', 357, true),
     ];
+    // for testing purposes, local storage always contains filled array
+    // set to empty array when done testing
 } else {
     myLibrary = JSON.parse(localStorage.getItem('library'));
 }
 localStorage.setItem('library', JSON.stringify(myLibrary))
 renderLibrary();
 
+async function getBookDetails(isbn) {
+    // const url = 'https://openlibrary.org/search.json?title=the+lord+of+the+rings&author=tolkein'
+    // let isbn = 9780590353427
+    // let isbn = 9780544003415
+    // const url = `https://www.googleapis.com/books/v1/volumes?q=${isbn}`
+    // const url = `https://www.googleapis.com/books/v1/volumes?q=the+lord+of+the+rings`
+    // const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
 
-// function getFetch() {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!response.ok) {
+            console.log(data.description);
+            return;
+        }
+        return data.items[0].volumeInfo
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// function getBookDetails(isbn) {
 //     // const url = 'https://openlibrary.org/search.json?title=the+lord+of+the+rings&author=tolkein'
 //     // let isbn = 9780590353427
 //     let isbn = 9780544003415
-//     const url = `https://www.googleapis.com/books/v1/volumes?q=${isbn}`
+//     // const url = `https://www.googleapis.com/books/v1/volumes?q=${isbn}`
 //     // const url = `https://www.googleapis.com/books/v1/volumes?q=the+lord+of+the+rings`
-
-
+//     const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+    
 //     fetch(url)
 //         .then(res => res.json())
 //         .then(data => {
-//             console.log(data.items.length)
-//             console.log(data.items[0].volumeInfo)
-//             console.log(data.items[0].volumeInfo.title)
-//             console.log(data.items[0].volumeInfo.authors[0])
-//             console.log(data.items[0].volumeInfo.pageCount)
-//             console.log(data.items[0].volumeInfo.imageLinks.thumbnail)
-//             // console.log(data.items[1].volumeInfo.imageLinks.thumbnail)
-
-//             // console.log(data.industryIdentifiers)
+//             return data.items
 //         })
 //         .catch(err => console.log(`error ${err}`));
 // }
 
-// getFetch();
 
 // Form Submit (add new book)
 const addBook = document.getElementById('new-book-submit')
-addBook.addEventListener('click', (e) => {
+addBook.addEventListener('click', async(e) => {
     // get form data
+    const isbn = document.getElementById('isbn-input').value
     const title = document.getElementById('title-input').value
     const author = document.getElementById('author-input').value
     const pages = document.getElementById('pages-input').value
     const read = document.getElementById('read-input').checked
 
-    if (title && author && pages && Number(pages) >= 0) {
+    if (isbn || (title && author && pages && Number(pages) >= 0)) {
         e.preventDefault();
 
+        const info = await getBookDetails(isbn);
+        console.log(info)
+
         // create book object
-        const book = new Book(title, author, Number(pages), read)
-        // add book to library array
+        // const book = new Book(title, author, Number(pages), read)
+
+        const book = new Book(info.title, info.authors[0], info.industryIdentifiers[0].identifier, info.pageCount, true, info.imageLinks.thumbnail)
         addBookToLibrary(book)
-        // add book to localstorage
-        localStorage.setItem('library', JSON.stringify(myLibrary))
+        createBookCard(book, myLibrary.length - 1);
+
+        // add book to library array and local storage
+        // addBookToLibrary(book.items[0])
         // clear form
         clearForm();
         // add book card to DOM
-        createBookCard({title, author, pages, read}, myLibrary.length - 1);
+        // createBookCard({title, author, pages, read}, myLibrary.length - 1);
+
+        // fetch book info/cover
+        // const url = `https://www.googleapis.com/books/v1/volumes?q=${title.split(' ').join('+')}`
+        // console.log(url)
+
+        // fetch(url)
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         console.log(data.items)
+        //         // console.log(data.items[0].volumeInfo)
+        //         // console.log(data.items[0].volumeInfo.title)
+        //         // console.log(data.items[0].volumeInfo.authors[0])
+        //         // console.log(data.items[0].volumeInfo.pageCount)
+        //         console.log(data.items[0].volumeInfo.imageLinks.thumbnail)
+        //         // console.log(data.items[1].volumeInfo.imageLinks.thumbnail)
+
+        //         // console.log(data.industryIdentifiers)
+        //     })
+        //     .catch(err => console.log(`error ${err}`));
         
         // test console log
         // console.log(myLibrary);
@@ -238,8 +330,10 @@ function clearForm() {
     document.getElementById('author-input').value = '';
     document.getElementById('pages-input').value = '';
     document.getElementById('read-input').checked = false;
+
+    document.getElementById('isbn-input').value = '';
 }
 
-// sort function (title or author A-Z and Z-A, read or not read first, oldest to newest (date added) = default / newest to oldest)
+// sort function (oldest first (date added) = default / newest first, title or author A-Z and Z-A, read or not read first)
 function sortLibrary() {
 }
