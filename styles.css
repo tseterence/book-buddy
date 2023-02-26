@@ -1,6 +1,11 @@
+body {
+    background-color: #F2EBE3;
+}
+
 main {
     max-width: 1060px;
     padding: 20px;
+    background-color: white;
 }
 
 .warning {
@@ -57,8 +62,42 @@ img {
 
 
 form {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
+
+.form-select {
+    width: 180px;
+}
+
+/* delete book fade animation */
+.card {
+    opacity: 1;
+}
+.fade-out {
+    transition: all 0.4s ease-out;
+    opacity: 0;
+}
+
+
+
+/* .removed-item {
+    animation: removed-item-animation .6s cubic-bezier(.55,-0.04,.91,.94) forwards;
+}
+
+@keyframes removed-item-animation {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0);
+    }
+} */
+
+
+
 
 @media (min-width: 768px) {
     img {
