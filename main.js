@@ -10,7 +10,7 @@ class Book {
 }
 
 function addBookToLibrary(book) {
-    // check if book already exists in library, only proceed if not
+    // check if book already exists in library, only proceed if no
 
     // create book card and add to dom
     createBookCard(book);
@@ -76,7 +76,7 @@ function createBookCard(book) {
     bookCardImgDiv.setAttribute('class', 'col-md-auto text-center py-2')
     const bookCardImg = document.createElement('img');
     bookCardImg.setAttribute('class', 'book-cover')
-    bookCardImg.src = book.cover ? book.cover :'default.jpg';
+    bookCardImg.src = book.cover ? book.cover : 'default.jpg';
     bookCardImgDiv.appendChild(bookCardImg)
     bookCardDetails.appendChild(bookCardImgDiv);
 
@@ -166,13 +166,34 @@ function createBookCard(book) {
     document.getElementById('book-list').append(bookCard)
 }
 
+
+// DELETE BOOK MODAL //
 let deleteData
 let deleteBook
+
 const deleteModal = new bootstrap.Modal('#deleteModal')
+document.getElementById('confirmDelete').addEventListener('click', () => {
+    deleteBookFromLibrary(deleteBook);
+})
 
-// MODAL FORM CONTROL //
+// ADD BOOK MODAL //
+
+// (https://github.com/twbs/bootstrap/issues/31266)
 const addBookModal = new bootstrap.Modal('#addModal')
+addBookModal._element.addEventListener('hidden.bs.modal', function (e) {
+    clearForm();
+    isbnErrorMessage.classList.add('hidden');
+document.getElementById('isbn-input').classList.remove('border-danger');
+});
 
+// const addBookModal = document.getElementById("addModal");
+// addBookModal.addEventListener('hidden.bs.modal', function() {
+//     clearForm();
+//     isbnErrorMessage.classList.add('hidden');
+//     document.getElementById('isbn-input').classList.remove('border-danger');
+// });
+
+// add book by ISBN
 document.getElementById('addISBN').addEventListener('click', () => {
     document.getElementById('manually').classList.add('hidden');
     document.getElementById('isbn').classList.remove('hidden');
@@ -186,9 +207,9 @@ document.getElementById('addISBN').addEventListener('click', () => {
     });
     
     document.getElementById('addModalTitle').textContent = 'by ISBN'
-    addBookModal.show();
+    // addBookModal.show();
 })
-
+// add book manually
 document.getElementById('addManually').addEventListener('click', () => {
     document.getElementById('isbn').classList.add('hidden');
     document.getElementById('manually').classList.remove('hidden');
@@ -203,52 +224,10 @@ document.getElementById('addManually').addEventListener('click', () => {
     document.getElementById('addModalTitle').textContent = 'Manually'
     addBookModal.show();
 })
+const isbnErrorMessage = document.getElementById('isbn-error')
 
-
-
-document.getElementById('confirmDelete').addEventListener('click', () => {
-    deleteBookFromLibrary(deleteBook);
-})
-
-// render library on page load
-let myLibrary;
-
-if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
-    myLibrary = [];
-} else {
-    myLibrary = JSON.parse(localStorage.getItem('library'));
-}
-localStorage.setItem('library', JSON.stringify(myLibrary));
-renderLibrary();
-
-async function getBookDetails(isbn) {
-    // let isbn = 9780439708180
-    // let isbn = 9780544003415
-    let parsedisbn = isbn.replace(/[^0-9]/g, '');
-    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${parsedisbn}`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        // if (!response.ok) {
-        //     console.log(data.description);
-        //     return;
-        // }
-        return data.items[0].volumeInfo;
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-// Flow
-    // 1a. look up ISBN
-    // 1b. manually input book data, jump to 3.
-    // 2a. bring to form, with fields completed as a result of google books api
-    // 3. allow users to edit text fields
-    // 4. save, update local storage, add to dom
-
-
-// Form Submit (add new book)
-const submitBook = document.getElementById('new-book-submit')
+// FORM SUBMIT (ADD NEW BOOK) //
+const submitBook = document.getElementById('newBookSubmit')
 submitBook.addEventListener('click', async(e) => {
     // get form data
     const isbn = document.getElementById('isbn-input').value
@@ -262,9 +241,13 @@ submitBook.addEventListener('click', async(e) => {
         const info = await getBookDetails(isbn);
         if (!info) {
             // display error below ISBN input field
+            document.getElementById('isbn-input').classList.add('border-danger')
+            isbnErrorMessage.classList.remove('hidden');
+
             console.log(`Error - We don't recognize this ISBN. Try entering the ISBN again, or add the book manually. According to our records, a book with the same title already exists in your library!`)
         } else {
-            const book = new Book(info.title, info.authors[0], info.industryIdentifiers[0].identifier, info.pageCount, read, '');
+            console.log(info)
+            const book = new Book(info.title, info.authors[0], info.industryIdentifiers[0].identifier, info.pageCount, read, info.imageLinks.thumbnail);
             addBookToLibrary(book);
 
             // clear form
@@ -285,7 +268,27 @@ submitBook.addEventListener('click', async(e) => {
         addBookModal.hide();
     }
 })
+// Google Books API call
+async function getBookDetails(isbn) {
+    // let isbn = 9780439708180 (hp)
+    // let isbn = 9780544003415 (lotr)
 
+    const parsedisbn = isbn.replace(/[^0-9]/g, '');
+    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${parsedisbn}`;
+    // BUG: not sure if i should add isbn to query param and whether to parse isbn, combo of the 2
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.totalItems === 0) return false
+        return data.items[0].volumeInfo;
+
+        // what if we checked if checked all return values here (default.jpg if no image, N.A. if no author, etc using || statements) and returned an object in Class order so receiving it within submit function was easier?
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// CLEAR FORM FUNCTION //
 function clearForm() {
     document.getElementById('isbn-input').value = '';
     document.getElementById('title-input').value = '';
@@ -294,7 +297,26 @@ function clearForm() {
     document.getElementById('read-input').checked = false;
 }
 
-// SORT FUNCTION //
+// on page load: get library from local storage and render library
+let myLibrary;
+
+if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
+    myLibrary = [];
+} else {
+    myLibrary = JSON.parse(localStorage.getItem('library'));
+}
+localStorage.setItem('library', JSON.stringify(myLibrary));
+renderLibrary();
+
+// Flow
+    // 1a. look up ISBN
+    // 1b. manually input book data, jump to 3.
+    // 2a. bring to form, with fields completed as a result of google books api
+    // 3. allow users to edit text fields
+    // 4. save, update local storage, add to dom
+
+
+// SORT BOOKS FEATURE //
 const select = document.getElementById('select-sort')
 select.addEventListener('change', sortLibrary)
 function sortLibrary() {
@@ -328,7 +350,35 @@ function sortLibrary() {
     // rerender library
     // reset sort order to default (newest to oldest)
 // should toggling read/want to read button rerender DOM if sort selection is by book "read" status?
-
+// add/delete card animations
+// check referenced bootstrap template CSS file, only take what you need
 // do not add book if already in library
-// make add book buttons same size
 // edit button within each card that brings up form (filled with data) for editing/saving
+// summary of total books, books read, books unread
+// rating property (out of 5 stars)
+// instead of default image for manual input, what if gray rectangle, with title (...) & author?
+
+
+// SCROLL TO TOP FEATURE //
+const mybutton = document.getElementById("btn-back-to-top");
+
+// show button when user scrolls down 80px from top
+window.onscroll = function () {
+  scrollFunction();
+};
+
+function scrollFunction() {
+    if (document.body.scrollTop > 80 || document.documentElement.scrollTop > 80) {
+        mybutton.style.display = 'block';
+    } else {
+        mybutton.style.cssText = 'display: none !important';
+  }
+}
+
+// scroll to top
+mybutton.addEventListener("click", backToTop);
+
+function backToTop() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}

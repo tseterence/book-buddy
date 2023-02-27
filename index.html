@@ -13,10 +13,14 @@
     <link href="sb-admin-2.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        Library Logger, Book Logger, Reading Log, Book Tracker
-    </header>    
+    <!-- Header -->
+    <!-- <header>
+        <nav class="navbar navbar-light bg-light">
+            <span class="navbar-brand mb-0 h1"><i class="bi bi-book"></i>Library Logger, Book Logger, Reading Log, Book Tracker</span>
+        </nav>
+    </header> -->
 
+    <!-- Main Content -->
     <main class="mx-auto">
         <!-- Confirm Delete Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -45,12 +49,15 @@
                         <h1 class="modal-title fs-5" id="addModalLabel">Add Book <span id="addModalTitle"></span></h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="new-book-form">
+                    <form id="newBookForm">
                         <div class="modal-body">
                             <div id="isbn">
                                 <div class="mb-2">
                                     <label for="isbn-input" class="form-label">ISBN Number</label>
                                     <input type="text" class="form-control" id="isbn-input" placeholder="ISBN" autocomplete="off" required>
+                                </div>
+                                <div class="mb-2 hidden" id="isbn-error">
+                                    <span class="text-danger">We don't recognize this ISBN. Try entering the ISBN again, or add the book manually.</span>
                                 </div>
                             </div>
                             <div id="manually">
@@ -74,20 +81,30 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="new-book-submit">Submit</button>
+                            <button type="submit" class="btn btn-primary" id="newBookSubmit">Submit</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
+        <!-- Scroll to Top Button -->
+        <button type="button" class="btn btn-info btn-circle d-flex justify-content-center align-items-center" id="btn-back-to-top">
+            <i class="bi bi-arrow-up bold-icon"></i>
+        </button>
+
+        <!-- Header -->
+        <h1 class="display-4 text-center mb-4" id="header">
+            <span class="text-info">Book</span>&nbspBuddy&nbsp<i class="bi bi-book text-info"></i>
+        </h1>
+
         <!-- Add Book Buttons -->
         <div class="d-flex justify-content-center align-items-center mb-3">
-            <button class="btn btn-primary mr-4" id="addISBN">+ Add by ISBN</button>
-            <button class="btn btn-primary" id="addManually">+ Add Manually</button>
+            <button class="btn btn-primary mr-4 add" id="addISBN" data-bs-target="#addModal" data-bs-toggle="modal">+ Add by ISBN</button>
+            <button class="btn btn-primary add" id="addManually" data-bs-target="#addModal" data-bs-toggle="modal">+ Add Manually</button>
         </div>
 
-        <!-- Sort Dropdown Menu -->
+        <!-- Sort By Dropdown Menu -->
         <div class="col-auto d-flex justify-content-end align-items-center mb-2">
             <span class="mr-2">Sort By:</span>
 

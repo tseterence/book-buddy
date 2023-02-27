@@ -47,6 +47,25 @@ main {
 
     margin-bottom: 3px;
 } */
+#btn-back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    z-index: 10;
+}
+.bold-icon {
+    -webkit-text-stroke: 1px white;
+}
+
+#header {
+    font-size: 3.0rem;
+    font-weight: 700;
+}
+.add {
+    width: 150px;
+    height: 40px;
+}
 .text {
     margin: 0 auto;
 }
@@ -56,7 +75,7 @@ main {
 }
 
 
-img {
+.book-cover {
     width: 175px;
 }
 
@@ -66,6 +85,23 @@ img {
 .hidden {
     display: none;
 }
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: black;
+}
+.author {
+    font-size: 1.25rem;
+    color: black;
+}
+.page-count {
+    font-size: 1rem;
+}
+
+/* nav {
+    font-size: 2rem;
+} */
 
 /* delete book fade animation */
 .card {
@@ -100,7 +136,7 @@ img {
 
 
 @media (min-width: 768px) {
-    img {
+    .book-cover {
         width: 100px;
         /* height: ; */
     }
