@@ -60,23 +60,23 @@ img {
     width: 175px;
 }
 
-
-form {
-    margin-bottom: 20px;
-}
-
 .form-select {
     width: 180px;
+}
+.hidden {
+    display: none;
 }
 
 /* delete book fade animation */
 .card {
+    transition-property: all;
+    transition-duration: 1s;
     opacity: 1;
 }
-.fade-out {
+/* .fade-out {
     transition: all 0.4s ease-out;
     opacity: 0;
-}
+} */
 
 
 
