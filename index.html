@@ -13,12 +13,21 @@
     <link href="sb-admin-2.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
-    <!-- <header>
-        <nav class="navbar navbar-light bg-light">
+    <!-- Navbar -->
+    <header>
+        <!-- <nav class="navbar navbar-light bg-light">
+            <span class="text-info">Book</span>&nbspBuddy&nbsp<i class="bi bi-book text-info"></i>
             <span class="navbar-brand mb-0 h1"><i class="bi bi-book"></i>Library Logger, Book Logger, Reading Log, Book Tracker</span>
+        </nav> -->
+        <nav class="navbar fixed-top navbar-light bg-light">
+            <div>
+                <a class="navbar-brand" href="#"><span class="text-info">Book</span>&nbspBuddy&nbsp<i class="bi bi-book text-info"></i></a>
+            </div>
+            <div>
+                <a href=""><i class="bi bi-github"></i></a>
+            </div>
         </nav>
-    </header> -->
+    </header>
 
     <!-- Main Content -->
     <main class="mx-auto">
@@ -95,59 +104,53 @@
         </button>
 
         <!-- Header -->
-        <h1 class="display-4 text-center mb-4" id="header">
+        <!-- <h1 class="display-4 text-center mb-4" id="header">
             <span class="text-info">Book</span>&nbspBuddy&nbsp<i class="bi bi-book text-info"></i>
-        </h1>
+        </h1> -->
 
-        <!-- Collapsible Log Summary -->
-        <div class="card shadow mb-4">
-            <!-- Card Header -->
-            <div id="cardHeader" class="card-header py-3 d-flex flex-row align-items-center justify-content-between"  data-bs-toggle="collapse" href="#collapseCard" role="button" aria-expanded="false" aria-controls="collapseExample">
-                <h4 class="m-0 font-weight-bold text-primary">Book Log Summary</h4>
-                <i id="cardHeaderIcon" class="bi bi-chevron-down text-primary"></i>
+        <!-- Log Summary -->
+        <div class="card shadow my-4" id="summaryCard">
+            <div class="card-header py-3">
+                <h2 class="font-weight-bold">Catalog Summary</h2>
             </div>
-            <div class="collapse show" id="collapseCard">
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-s-12 col-md-6 col-lg-4 m-auto">
-                            <table class="table table-borderless table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td class="h4 text-gray-800"><i class="bi bi-book-fill"></i></td>
-                                        <td class="h4 text-gray-800">Books Read:</td>
-                                        <td class="h4 font-weight-bold text-gray-800"><span id="readCount"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="h4 text-gray-800"><i class="bi bi-book"></i></td>
-                                        <td class="h4 text-gray-800">Books Unread:</td>
-                                        <td class="h4 font-weight-bold text-gray-800"><span id="unreadCount"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="h4 text-gray-800"><i class="bi bi-bookshelf"></i></td>
-                                        <td class="h4 text-gray-800">Total Books:</td>
-                                        <td class="h4 font-weight-bold text-gray-800"><span id="totalCount"></span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="chart-pie col-s-12 col-md-6 m-auto">
-                            <canvas id="myPieChart"></canvas>
+            <div class="card-body">
+                <div class="row h-100">
+                    <div class="chart-pie my-0 col-7">
+                        <canvas id="myPieChart"></canvas>
+                    </div>
+                    <div class="col-5 my-auto">
+                        <table class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td class="text-gray-800 col-2">Read:</td>
+                                    <td class="font-weight-bold text-gray-800"><span id="readCount"></span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-800 col-2">Unread:</td>
+                                    <td class="font-weight-bold text-gray-800"><span id="unreadCount"></span></td>
+                                </tr>
+                                <tr class="bottom-row">
+                                    <td class="text-gray-800 col-2">Total:</td>
+                                    <td class="font-weight-bold text-gray-800"><span id="totalCount"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-1">
+                                <button class="btn btn-primary btn-sm add" id="addISBN" data-bs-target="#addModal"data-bs-toggle="modal"><i class="bi bi-plus-lg"></i></i> By ISBN</button>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-1">
+                                <button class="btn btn-primary btn-sm add" id="addManually" data-bs-target="#addModal"data-bs-toggle="modal"><i class="bi bi-plus-lg"></i> Manually</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Add Book Buttons -->
-        <div class="d-flex justify-content-center align-items-center mb-3">
-            <button class="btn btn-primary mr-4 add" id="addISBN" data-bs-target="#addModal" data-bs-toggle="modal">+ Add by ISBN</button>
-            <button class="btn btn-primary add" id="addManually" data-bs-target="#addModal" data-bs-toggle="modal">+ Add Manually</button>
-        </div>
-
         <!-- Sort By Dropdown Menu -->
         <div class="col-auto d-flex justify-content-end align-items-center mb-2">
-            <span class="mr-2">Sort By:</span>
+            <span class="me-2">Sort By:</span>
 
             <select class="form-select" id="select-sort">
                 <option value="newest">Newest to Oldest</option>
@@ -163,6 +166,15 @@
         <section id="book-list">
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Terence Tse &copy; <script>document.write(new Date().getFullYear())</script></span>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>

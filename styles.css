@@ -4,7 +4,7 @@ body {
 
 main {
     max-width: 1060px;
-    padding: 20px;
+    padding: 60px 20px 0;
     background-color: white;
 }
 
@@ -57,23 +57,13 @@ main {
 }
 
 
-/* book log summary expand/collapse icon animation */
-#cardHeaderIcon {
-    transition: 0.4s;
-    -webkit-text-stroke: 2px;
-}
-.rotate {
-    transform: rotate(180deg);
-}
-
-
 #header {
     font-size: 3.0rem;
     font-weight: 700;
 }
 .add {
-    width: 150px;
-    height: 40px;
+    width: 100px;
+    height: 32px;
 }
 .text {
     margin: 0 auto;
@@ -108,9 +98,6 @@ main {
     font-size: 1rem;
 }
 
-/* nav {
-    font-size: 2rem;
-} */
 
 /* delete book fade animation */
 .card {
@@ -122,8 +109,6 @@ main {
     transition: all 0.4s ease-out;
     opacity: 0;
 } */
-
-
 
 /* .removed-item {
     animation: removed-item-animation .6s cubic-bezier(.55,-0.04,.91,.94) forwards;
@@ -143,16 +128,35 @@ main {
 
 
 
-
 @media (min-width: 768px) {
     .book-cover {
         width: 100px;
         /* height: ; */
     }
+    .add {
+        width: 110px;
+        height: 40px;
+        font-size: 1rem;
+    }
 }
 
 
-
+table tr {
+    line-height: 16px;
+}
+table td {
+    font-size: 16px;
+    font-weight: 700;
+}
+.bottom-row {
+    line-height: 40px;
+}
+.bottom-row td {
+    font-size: 22px;
+}
+.navbar a {
+    font-size: 24px;
+}
 
 
 /* .btn-icon-split {

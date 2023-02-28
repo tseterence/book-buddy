@@ -384,6 +384,7 @@ function sortLibrary() {
     // rerender library
     // reset sort order to default (newest to oldest)
 // should toggling read/want to read button rerender DOM if sort selection is by book "read" status?
+// function to get read books, unread books, total books from local storage instead of global variable
 // add/delete card animations
 // ellipses for really long titles on book card
 // check referenced bootstrap template CSS file, only take what you need
@@ -423,27 +424,28 @@ let ctx = document.getElementById("myPieChart");
 let myPieChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-        labels: ["Books Read", "Books Unread"],
+        labels: ["Read Books", "Unread Books"],
         datasets: [{
             data: [75, 25],
             backgroundColor: ['#1cc88a', '#f6c23e'],
             hoverBackgroundColor: ['#17a673', '#f4b619'],
-            hoverBorderColor: "rgba(234, 236, 244, 1)",
         }],
     },
     options: {
         cutout: 70,
+        aspectRatio: 1,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom',
+                position: 'top',
+                align: 'start',
+                reverse: true,
                 labels: {
                     font: {
                         family: "'Nunito', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'",
                         color: '#858796',
                     },
                     usePointStyle: true,
-                    padding: 25,
                 }
             },
             tooltip: {
@@ -456,15 +458,10 @@ let myPieChart = new Chart(ctx, {
 });
 
 // Collapse/Expand Summary Icon //
-const cardHeaderIcon = document.getElementById('cardHeaderIcon');
-document.getElementById('cardHeader').addEventListener('click', () => {
-    cardHeaderIcon.classList.toggle('rotate')
-})
-
-// when adding, deleting, or updating book, must change myPieChart.data.datasets array
-// where ind 0 = read, and ind1 = unread
-// function to get read books, unread books, total books from local storage
-// then need to update spans within log
+// const cardHeaderIcon = document.getElementById('cardHeaderIcon');
+// document.getElementById('cardHeader').addEventListener('click', () => {
+//     cardHeaderIcon.classList.toggle('rotate')
+// })
 
 const readCount = document.getElementById('readCount');
 const unreadCount = document.getElementById('unreadCount');
@@ -473,7 +470,7 @@ const totalCount = document.getElementById('totalCount');
 function updateLog(read, unread) {
     myPieChart.data.datasets[0].data = [read, unread];
     myPieChart.update();
-    // update html spans within log
+    // update html spans within log summary
     readCount.textContent = totalRead;
     unreadCount.textContent = totalUnread;
     totalCount.textContent = totalBooks;
