@@ -53,10 +53,19 @@ main {
     right: 20px;
     display: none;
     z-index: 10;
-}
-.bold-icon {
     -webkit-text-stroke: 1px white;
 }
+
+
+/* book log summary expand/collapse icon animation */
+#cardHeaderIcon {
+    transition: 0.4s;
+    -webkit-text-stroke: 2px;
+}
+.rotate {
+    transform: rotate(180deg);
+}
+
 
 #header {
     font-size: 3.0rem;
