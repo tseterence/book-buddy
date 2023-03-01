@@ -10,11 +10,22 @@ class Book {
 }
 
 function addBookToLibrary(book) {
+    if (alreadyInLibrary(book)) {
+        document.getElementById('isbn-input').classList.add('border-danger');
+        document.getElementById('duplicate-isbn-title').textContent = book.title;
+        duplicateIsbnErrorMessage.classList.remove('hidden');
+
+        document.getElementById('title-input').classList.add('border-danger');
+        document.getElementById('duplicate-manual-title').textContent = book.title;
+        duplicateManualErrorMessage.classList.remove('hidden');
+
+        return
+    }
+    
+    // update log summary & chart
     book.read ? (totalRead++) : (totalUnread++);
     totalBooks++;
     updateLog(totalRead, totalUnread);
-
-    // check if book already exists in library, only proceed if no
 
     // create book card and add to dom
     createBookCard(book);
@@ -22,20 +33,32 @@ function addBookToLibrary(book) {
     // update local storage
     const library = JSON.parse(localStorage.getItem('library'));
     library.push(book);
-    localStorage.setItem('library', JSON.stringify(library));    
+    localStorage.setItem('library', JSON.stringify(library));
+
+    // clear form
+    clearForm();
+    // close modal
+    addBookModal.hide();
+}
+
+function alreadyInLibrary(book) {
+    // dont like how im calling localstorage twice: here and in addBookToLibrary
+    const library = JSON.parse(localStorage.getItem('library'));
+    return library.some((obj) => obj.title === book.title)
 }
 
 function deleteBookFromLibrary(book) {
+    // update log summary & chart
     book.read ? (totalRead--) : (totalUnread--);
     totalBooks--;
     updateLog(totalRead, totalUnread);
 
     // delete book card from dom
-    deleteData.style.opacity = '0';
-    deleteData.addEventListener('transitionend', () => {
+    deleteData.classList.remove('show');
+    setTimeout(() => {
         deleteData.remove();
-    })
-
+    }, 400);
+    
     // update local storage
     const library = JSON.parse(localStorage.getItem('library'));
     for (let i = 0; i < library.length; i++) {
@@ -48,6 +71,7 @@ function deleteBookFromLibrary(book) {
 }
 
 function changeBookStatus(book) {
+    // update log summary & chart
     if (book.read) {
         totalRead++;
         totalUnread--;
@@ -57,8 +81,7 @@ function changeBookStatus(book) {
     }
     updateLog(totalRead, totalUnread);
 
-    // modify book card in dom
-        // done thru event listener when creating book card
+    // modify book card in dom done thru event listener
 
     // update local storage
     const library = JSON.parse(localStorage.getItem('library'));
@@ -71,13 +94,14 @@ function changeBookStatus(book) {
     localStorage.setItem('library', JSON.stringify(library));
 }
 
-function renderLibrary() {
-    myLibrary.forEach((book, index) => {
-        createBookCard(book, index);
+function renderLibrary(arr) {
+    arr.forEach((book) => {
+        createBookCard(book);
     })
 }
 
 function createBookCard(book) {
+    // should i replace majority of this code with innerHTML?
     const bookCard = document.createElement('div');
 
     bookCard.setAttribute('class', 'card shadow h-100 mb-2');
@@ -93,20 +117,20 @@ function createBookCard(book) {
     bookCardImgDiv.setAttribute('class', 'col-md-auto text-center py-2');
     const bookCardImg = document.createElement('img');
     bookCardImg.setAttribute('class', 'book-cover');
-    bookCardImg.src = book.cover ? book.cover : 'default.jpg';
+    bookCardImg.src = book.cover ? book.cover : '../img/default.jpg';
     bookCardImgDiv.appendChild(bookCardImg);
     bookCardDetails.appendChild(bookCardImgDiv);
 
     const bookCardTextDiv = document.createElement('div');
-    bookCardTextDiv.setAttribute('class', 'col py-2')
+    bookCardTextDiv.setAttribute('class', 'col my-auto py-2')
 
-    const bookCardTitle = document.createElement('h3');
-    bookCardTitle.setAttribute('class', 'title');
+    const bookCardTitle = document.createElement('h5');
+    bookCardTitle.setAttribute('class', 'title text-dark fw-bold');
     bookCardTitle.textContent = book.title;
-    const bookCardAuthor = document.createElement('h4');
-    bookCardAuthor.setAttribute('class', 'author');
+    const bookCardAuthor = document.createElement('h5');
+    bookCardAuthor.setAttribute('class', 'author text-dark');
     bookCardAuthor.textContent = 'by ' + book.author;
-    const bookCardPages = document.createElement('h5');
+    const bookCardPages = document.createElement('span');
     bookCardPages.setAttribute('class', 'page-count');
     bookCardPages.textContent = book.pages + ' pages';
 
@@ -115,14 +139,13 @@ function createBookCard(book) {
     bookCardTextDiv.appendChild(bookCardPages);
 
     bookCardDetails.appendChild(bookCardTextDiv);
-
     
 
     const bookCardActions = document.createElement('div');
-    bookCardActions.setAttribute('class', 'col-md-3 py-2 ml-md-2');
+    bookCardActions.setAttribute('class', 'col-md-3 py-2 ps-md-0 ml-md-2');
 
     const bookCardReadBtn = document.createElement('button');
-    bookCardReadBtn.setAttribute('class', 'btn btn-icon-split w-100 mb-1');
+    bookCardReadBtn.setAttribute('class', 'btn btn-icon-split w-100 mb-2');
     bookCardReadBtn.classList.add(book.read ? 'btn-success' : 'btn-warning');
 
     const readIconSpan = document.createElement('span');
@@ -142,7 +165,7 @@ function createBookCard(book) {
         bookCardReadBtn.setAttribute('class', book.read ? 'btn btn-icon-split w-100 mb-1 btn-warning' : 'btn btn-icon-split w-100 mb-1 btn-success');
         readIcon.setAttribute('class', book.read ? 'bi bi-bookmark-fill' : 'bi bi-check-lg');
         readIconSpanText.textContent = book.read ? 'Want to Read' : 'Read';
-        bookCard.setAttribute('class', book.read ? 'card shadow h-100 mb-2 border-left-warning' : 'card shadow h-100 mb-2 border-left-success');
+        bookCard.setAttribute('class', book.read ? 'card shadow h-100 mb-2 book-card show border-left-warning' : 'card shadow h-100 mb-2 book-card show border-left-success');
         book.read = !book.read;
 
         changeBookStatus(book);
@@ -181,6 +204,9 @@ function createBookCard(book) {
     bookCard.appendChild(bookCardBody);
 
     document.getElementById('book-list').prepend(bookCard);
+    setTimeout(() => {
+        bookCard.classList.add('book-card', 'show');
+    }, 400);
 }
 
 
@@ -194,22 +220,16 @@ document.getElementById('confirmDelete').addEventListener('click', () => {
 })
 
 // ADD BOOK MODAL //
-
-// (https://github.com/twbs/bootstrap/issues/31266)
 const addBookModal = new bootstrap.Modal('#addModal');
-addBookModal._element.addEventListener('hidden.bs.modal', function (e) {
+addBookModal._element.addEventListener('hidden.bs.modal', () => {
     clearForm();
     isbnErrorMessage.classList.add('hidden');
     document.getElementById('isbn-input').classList.remove('border-danger');
+    duplicateIsbnErrorMessage.classList.add('hidden');
+    document.getElementById('title-input').classList.remove('border-danger');
+    duplicateManualErrorMessage.classList.add('hidden');
+
 });
-
-// const addBookModal = document.getElementById("addModal");
-// addBookModal.addEventListener('hidden.bs.modal', function() {
-//     clearForm();
-//     isbnErrorMessage.classList.add('hidden');
-//     document.getElementById('isbn-input').classList.remove('border-danger');
-// });
-
 // add book by ISBN
 document.getElementById('addISBN').addEventListener('click', () => {
     document.getElementById('manually').classList.add('hidden');
@@ -224,7 +244,6 @@ document.getElementById('addISBN').addEventListener('click', () => {
     });
     
     document.getElementById('addModalTitle').textContent = 'by ISBN';
-    // addBookModal.show();
 })
 // add book manually
 document.getElementById('addManually').addEventListener('click', () => {
@@ -239,11 +258,12 @@ document.getElementById('addManually').addEventListener('click', () => {
     });
 
     document.getElementById('addModalTitle').textContent = 'Manually';
-    // addBookModal.show();
 })
 const isbnErrorMessage = document.getElementById('isbn-error');
+const duplicateIsbnErrorMessage = document.getElementById('duplicate-isbn-error');
+const duplicateManualErrorMessage = document.getElementById('duplicate-manual-error');
 
-// FORM SUBMIT (ADD NEW BOOK) //
+// FORM SUBMIT //
 const submitBook = document.getElementById('newBookSubmit');
 submitBook.addEventListener('click', async(e) => {
     // get form data
@@ -253,41 +273,34 @@ submitBook.addEventListener('click', async(e) => {
     const pages = document.getElementById('pages-input').value;
     const read = document.getElementById('read-input').checked;
 
+    document.getElementById('isbn-input').classList.remove('border-danger');
+    isbnErrorMessage.classList.add('hidden');
+    duplicateIsbnErrorMessage.classList.add('hidden');
+    document.getElementById('title-input').classList.remove('border-danger');
+    duplicateManualErrorMessage.classList.add('hidden');
+
     if (isbn) {
         e.preventDefault();
         const info = await getBookDetails(isbn);
         if (!info) {
-            // if ISBN not recognized, display error below input field
+            // isbn not recognized
             document.getElementById('isbn-input').classList.add('border-danger');
             isbnErrorMessage.classList.remove('hidden');
-
-            // console.log(`Error - We don't recognize this ISBN. Try entering the ISBN again, or add the book manually. According to our records, a book with the same title already exists in your library!`);
         } else {
             const book = new Book(info.btitle, info.bauthor, info.bisbn13, info.bpageCount, read, info.bcover);
             addBookToLibrary(book);
-
-            // clear form
-            clearForm();
-            // close modal
-            addBookModal.hide();
         }        
     } else if (title && author && Number(pages) >= 0) {
         e.preventDefault();
         const book = new Book(title, author, '', pages, read, '');
         addBookToLibrary(book);
-
-        // clear form
-        clearForm();
-        // close modal
-        addBookModal.hide();
     }
 })
-// Google Books API call
+// call google books api
 async function getBookDetails(isbn) {
-    // let isbn = 9780439708180 (hp)
-    // let isbn = 9780544003415 (lotr)
-
     const parsedisbn = isbn.replace(/[^0-9]/g, '');
+    if (parsedisbn === '') return
+
     const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${parsedisbn}`;
     // BUG: not sure if i should add isbn to query param and whether to parse isbn, combo of the 2
     try {
@@ -323,85 +336,36 @@ function clearForm() {
     document.getElementById('read-input').checked = false;
 }
 
-// on page load: get library from local storage and render library
-let myLibrary;
-let totalBooks = 0;
-let totalRead = 0;
-let totalUnread = 0;
-
-if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
-    myLibrary = [];
-    // readCount, undreadCount, totalCount = 0
-} else {
-    myLibrary = JSON.parse(localStorage.getItem('library'));
-    totalBooks = myLibrary.length;
-    totalRead = myLibrary.filter(obj => obj.read === true).length;
-    totalUnread = totalBooks - totalRead;
-}
-localStorage.setItem('library', JSON.stringify(myLibrary));
-renderLibrary();
-// updateLog(totalRead, totalUnread);
-
-// Flow
-    // 1a. look up ISBN
-    // 1b. manually input book data, jump to 3.
-    // 2a. bring to form, with fields completed as a result of google books api
-    // 3. allow users to edit text fields
-    // 4. save, update local storage, add to dom
-
 
 // SORT BOOKS FEATURE //
 const select = document.getElementById('select-sort');
 select.addEventListener('change', sortLibrary);
 function sortLibrary() {
     const selectedVal = select.value;
-    console.log(selectedVal)
     let copy = [...JSON.parse(localStorage.getItem('library'))]
     if (selectedVal === 'newest') {
-        console.table(copy);
+        copy = copy;
     } else if (selectedVal === 'oldest') {
         copy = copy.reverse();
-        console.table(copy);
     } else if (selectedVal === 'want') {
-        copy = copy.sort((a, b) => a.read === b.read ? 0 : a.read ? 1 : -1)
-        console.table(copy);
-    } else if (selectedVal === 'already') {
         copy = copy.sort((a, b) => a.read === b.read ? 0 : a.read ? -1 : 1)
-        console.table(copy);
+    } else if (selectedVal === 'already') {
+        copy = copy.sort((a, b) => a.read === b.read ? 0 : a.read ? 1 : -1)
     } else if (selectedVal === 'titleA') {
-        copy = copy.sort((a, b) => a.title.localeCompare(b.title))
-        console.table(copy);
-    } else if (selectedVal === 'titleZ') {
         copy = copy.sort((a, b) => b.title.localeCompare(a.title))
-        console.table(copy);
+    } else if (selectedVal === 'titleZ') {
+        copy = copy.sort((a, b) => a.title.localeCompare(b.title))
     }
-    // renderLibrary();
+    document.getElementById('book-list').textContent = '';
+    renderLibrary(copy);
 }
-
-// IDEAS:
-// when adding a new book
-    // unshift book obj to local storage array
-    // rerender library
-    // reset sort order to default (newest to oldest)
-// should toggling read/want to read button rerender DOM if sort selection is by book "read" status?
-// function to get read books, unread books, total books from local storage instead of global variable
-// add/delete card animations
-// ellipses for really long titles on book card
-// check referenced bootstrap template CSS file, only take what you need
-// do not add book if already in library
-// edit button within each card that brings up form (filled with data) for editing/saving
-// rating property (out of 5 stars)
-// instead of default image for manual input, what if gray rectangle, with title (...) & author?
 
 
 // SCROLL TO TOP FEATURE //
 const mybutton = document.getElementById("btn-back-to-top");
-
-// show button when user scrolls down 80px from top
-window.onscroll = function () {
+window.onscroll = () => {
   scrollFunction();
 };
-
 function scrollFunction() {
     if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
         mybutton.style.display = 'block';
@@ -409,15 +373,11 @@ function scrollFunction() {
         mybutton.style.cssText = 'display: none !important';
   }
 }
-
-// scroll to top
 mybutton.addEventListener("click", backToTop);
-
 function backToTop() {
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 }
-
 
 // DOUGHNUT CHART //
 let ctx = document.getElementById("myPieChart");
@@ -442,7 +402,7 @@ let myPieChart = new Chart(ctx, {
                 reverse: true,
                 labels: {
                     font: {
-                        family: "'Nunito', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'",
+                        family: "Nunito, Arial, Helvetica, sans-serif",
                         color: '#858796',
                     },
                     usePointStyle: true,
@@ -457,12 +417,6 @@ let myPieChart = new Chart(ctx, {
     },
 });
 
-// Collapse/Expand Summary Icon //
-// const cardHeaderIcon = document.getElementById('cardHeaderIcon');
-// document.getElementById('cardHeader').addEventListener('click', () => {
-//     cardHeaderIcon.classList.toggle('rotate')
-// })
-
 const readCount = document.getElementById('readCount');
 const unreadCount = document.getElementById('unreadCount');
 const totalCount = document.getElementById('totalCount');
@@ -475,4 +429,41 @@ function updateLog(read, unread) {
     unreadCount.textContent = totalUnread;
     totalCount.textContent = totalBooks;
 }
+
+// on page load: get library from local storage and render library, update log
+let myLibrary;
+let totalBooks = 0;
+let totalRead = 0;
+let totalUnread = 0;
+
+if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
+    // default local storage if empty or null
+    myLibrary = [
+        new Book('Catch-22', 'Joseph Heller', '9781606869673', 523, true, 'http://books.google.com/books/content?id=3gSTtgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('Shoe Dog', 'Phil Knight', '9781501135910', 384, true, 'http://books.google.com/books/content?id=UmyfjgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('Becoming', 'Michelle Obama', '9781524763138', 463, false, 'http://books.google.com/books/content?id=hi17DwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api'),
+        new Book('Atomic Habits', 'James Clear', '9780735211292', 322, true, 'http://books.google.com/books/content?id=XfFvDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api'),
+        new Book('The Lord of the Rings', 'J. R. R. Tolkien', '9780544003415', 1178, false, 'http://books.google.com/books/content?id=AVVoPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+    ];
+    // readCount, undreadCount, totalCount = 0
+} else {
+    myLibrary = JSON.parse(localStorage.getItem('library'));
+}
+totalBooks = myLibrary.length;
+totalRead = myLibrary.filter(obj => obj.read === true).length;
+totalUnread = totalBooks - totalRead;
+localStorage.setItem('library', JSON.stringify(myLibrary));
+renderLibrary(myLibrary);
 updateLog(totalRead, totalUnread);
+
+
+// let isbn = 9780544003415 (lotr)
+
+// IDEAS:
+// should title check be case-insensitive?
+// function to get read books, unread books, total books from local storage instead of global variable
+// ellipses for really long titles on book card
+// edit button within each card that brings up form (filled with data) for editing/saving
+// rate book property (out of 5 stars)
+// instead of default image for manual input, what if gray rectangle, with title (...) & author?
+// encapsulate UI, and Library like i am doing with Books? (OOP)
