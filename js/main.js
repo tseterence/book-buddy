@@ -1,8 +1,8 @@
 class Book {
-    constructor(title, author, isbn13, pages, read, cover) {
+    constructor(title, author, isbn, pages, read, cover) {
         this.title = title;
         this.author = author;
-        this.isbn13 = isbn13;
+        this.isbn = isbn;
         this.pages = pages;
         this.read = read;
         this.cover = cover;
@@ -27,6 +27,10 @@ function addBookToLibrary(book) {
     totalBooks++;
     updateLog(totalRead, totalUnread);
 
+    // reset sort to default & rerender library
+    select.value = 'newest';
+    sortLibrary();
+
     // create book card and add to dom
     createBookCard(book);
 
@@ -44,7 +48,7 @@ function addBookToLibrary(book) {
 function alreadyInLibrary(book) {
     // dont like how im calling localstorage twice: here and in addBookToLibrary
     const library = JSON.parse(localStorage.getItem('library'));
-    return library.some((obj) => obj.title === book.title)
+    return library.some((obj) => obj.title.toLowerCase() === book.title.toLowerCase())
 }
 
 function deleteBookFromLibrary(book) {
@@ -62,7 +66,7 @@ function deleteBookFromLibrary(book) {
     // update local storage
     const library = JSON.parse(localStorage.getItem('library'));
     for (let i = 0; i < library.length; i++) {
-        if (library[i].isbn13 === book.isbn13) {
+        if (library[i].title === book.title) {
             library.splice(i, 1);
             break;
         }
@@ -162,7 +166,7 @@ function createBookCard(book) {
     bookCardReadBtn.appendChild(readIconSpanText);
 
     bookCardReadBtn.addEventListener('click', () => {
-        bookCardReadBtn.setAttribute('class', book.read ? 'btn btn-icon-split w-100 mb-1 btn-warning' : 'btn btn-icon-split w-100 mb-1 btn-success');
+        bookCardReadBtn.setAttribute('class', book.read ? 'btn btn-icon-split w-100 mb-2 btn-warning' : 'btn btn-icon-split w-100 mb-2 btn-success');
         readIcon.setAttribute('class', book.read ? 'bi bi-bookmark-fill' : 'bi bi-check-lg');
         readIconSpanText.textContent = book.read ? 'Want to Read' : 'Read';
         bookCard.setAttribute('class', book.read ? 'card shadow h-100 mb-2 book-card show border-left-warning' : 'card shadow h-100 mb-2 book-card show border-left-success');
@@ -281,28 +285,29 @@ submitBook.addEventListener('click', async(e) => {
 
     if (isbn) {
         e.preventDefault();
-        const info = await getBookDetails(isbn);
+        const info = await getBookDetails(isbn, null);
         if (!info) {
             // isbn not recognized
             document.getElementById('isbn-input').classList.add('border-danger');
             isbnErrorMessage.classList.remove('hidden');
         } else {
-            const book = new Book(info.btitle, info.bauthor, info.bisbn13, info.bpageCount, read, info.bcover);
+            const book = new Book(info.btitle, info.bauthor, info.bisbn, info.bpageCount, read, info.bcover);
             addBookToLibrary(book);
         }        
     } else if (title && author && Number(pages) >= 0) {
         e.preventDefault();
-        const book = new Book(title, author, '', pages, read, '');
+        const info = await getBookDetails(null, title);
+
+        const book = new Book(title, author, info.bisbn || '', pages, read, info.bcover || '');
         addBookToLibrary(book);
     }
 })
 // call google books api
-async function getBookDetails(isbn) {
-    const parsedisbn = isbn.replace(/[^0-9]/g, '');
-    if (parsedisbn === '') return
-
-    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${parsedisbn}`;
-    // BUG: not sure if i should add isbn to query param and whether to parse isbn, combo of the 2
+async function getBookDetails(isbn, title) {
+    const parsedinput = isbn !== null ? isbn.replace(/[^0-9]/g, '') : title.split(' ').join('+');
+    if (parsedinput === '') return;
+    const queryparam = isbn !== null ? `isbn:${parsedinput}` : parsedinput;
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${queryparam}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
@@ -313,12 +318,12 @@ async function getBookDetails(isbn) {
         const titleInfo = bookInfo.title;
         const authorInfo = bookInfo.authors[0] || 'N.A.';
         const pagesInfo = bookInfo.pageCount || 'N.A.';
-        const coverInfo = bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : 'default.jpg';
-        const isbnInfo = bookInfo.industryIdentifiers.find(obj => obj.type === 'ISBN_13').identifier || '';
+        const coverInfo = bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : '../img/default.jpg';
+        const isbnInfo = bookInfo.industryIdentifiers ? bookInfo.industryIdentifiers.find(obj => obj.type === 'ISBN_13').identifier || bookInfo.industryIdentifiers.find(obj => obj.type === 'ISBN_10').identifier : '';
         return {
             'btitle': titleInfo, 
             'bauthor': authorInfo, 
-            'bisbn13': isbnInfo, 
+            'bisbn': isbnInfo, 
             'bpageCount': pagesInfo,
             'bcover': coverInfo,
         }
@@ -348,7 +353,7 @@ function sortLibrary() {
     } else if (selectedVal === 'oldest') {
         copy = copy.reverse();
     } else if (selectedVal === 'want') {
-        copy = copy.sort((a, b) => a.read === b.read ? 0 : a.read ? -1 : 1)
+        copy = copy.reverse().sort((a, b) => a.read === b.read ? 0 : a.read ? -1 : 1)
     } else if (selectedVal === 'already') {
         copy = copy.sort((a, b) => a.read === b.read ? 0 : a.read ? 1 : -1)
     } else if (selectedVal === 'titleA') {
@@ -439,11 +444,15 @@ let totalUnread = 0;
 if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem('library')).length === 0) {
     // default local storage if empty or null
     myLibrary = [
+        new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', '9780590353403', 328, true, 'http://books.google.com/books/content?id=zXgTdQagLGkC&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('To Kill a Mockingbird', 'Harper Lee', '9780446310789', 292, true, 'http://books.google.com/books/content?id=_eBnuQOIh-0C&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('Catch-22', 'Joseph Heller', '9781606869673', 523, true, 'http://books.google.com/books/content?id=3gSTtgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('The Lord of the Rings', 'J. R. R. Tolkien', '9780544003415', 1178, false, 'http://books.google.com/books/content?id=AVVoPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('Shoe Dog', 'Phil Knight', '9781501135910', 384, true, 'http://books.google.com/books/content?id=UmyfjgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('Becoming', 'Michelle Obama', '9781524763138', 463, false, 'http://books.google.com/books/content?id=hi17DwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api'),
         new Book('Atomic Habits', 'James Clear', '9780735211292', 322, true, 'http://books.google.com/books/content?id=XfFvDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api'),
-        new Book('The Lord of the Rings', 'J. R. R. Tolkien', '9780544003415', 1178, false, 'http://books.google.com/books/content?id=AVVoPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('1984', 'George Orwell', '9780451524935', 190, false, 'http://books.google.com/books/content?id=ocNGwgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
+        new Book('An Immense World', 'Ed Yong', '9780593133248', 485, true, 'http://books.google.com/books/content?id=TdlHEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api'),
     ];
     // readCount, undreadCount, totalCount = 0
 } else {
@@ -460,7 +469,6 @@ updateLog(totalRead, totalUnread);
 // let isbn = 9780544003415 (lotr)
 
 // IDEAS:
-// should title check be case-insensitive?
 // function to get read books, unread books, total books from local storage instead of global variable
 // ellipses for really long titles on book card
 // edit button within each card that brings up form (filled with data) for editing/saving
