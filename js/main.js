@@ -445,7 +445,6 @@ if (localStorage.getItem('library') === null || JSON.parse(localStorage.getItem(
     // default local storage if empty or null
     myLibrary = [
         new Book(`Harry Potter and the Sorcerer's Stone`, 'J. K. Rowling', '9780590353403', 328, true, 'http://books.google.com/books/content?id=zXgTdQagLGkC&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
-        new Book('To Kill a Mockingbird', 'Harper Lee', '9780446310789', 292, true, 'http://books.google.com/books/content?id=_eBnuQOIh-0C&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('Catch-22', 'Joseph Heller', '9781606869673', 523, true, 'http://books.google.com/books/content?id=3gSTtgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('The Lord of the Rings', 'J. R. R. Tolkien', '9780544003415', 1178, false, 'http://books.google.com/books/content?id=AVVoPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
         new Book('Shoe Dog', 'Phil Knight', '9781501135910', 384, true, 'http://books.google.com/books/content?id=UmyfjgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api'),
@@ -473,5 +472,6 @@ updateLog(totalRead, totalUnread);
 // ellipses for really long titles on book card
 // edit button within each card that brings up form (filled with data) for editing/saving
 // rate book property (out of 5 stars)
-// instead of default image for manual input, what if gray rectangle, with title (...) & author?
+// barcode scanner for isbn
+// share library link with friends (query params, db)
 // encapsulate UI, and Library like i am doing with Books? (OOP)
